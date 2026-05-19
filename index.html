@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тренажёр слов</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@100;200;300&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#F1EDE3; --surface:#FAF7F0; --surface2:#EDE8DC; --surface3:#D9D2C0;
+  --ink:#1E1A17; --ink2:#6B6055; --ink3:#A89F93;
+  --bordeaux:#5D2415; --bordeaux2:#7A3020; --cream:#F1E1C4;
+  --yellow:#D9C87A; --yellow2:#C4B45A; --yellow-bg:#F5F0D4;
+  --blue:#7B9AB5; --blue2:#5A7D9A; --blue-bg:#E4EDF5;
+  --olive:#6E6E2E; --border:#D5CCBC;
+}
+body { font-family:'Josefin Sans',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; font-weight:200; letter-spacing:.04em; }
+.app { display:flex; flex-direction:column; min-height:100vh; }
+header { background:var(--bordeaux); color:var(--cream); padding:18px 28px; display:flex; align-items:baseline; gap:16px; }
+header h1 { font-family:'Josefin Sans',sans-serif; font-weight:100; font-size:24px; letter-spacing:.22em; text-transform:uppercase; }
+header span { font-size:11px; letter-spacing:.18em; opacity:.5; text-transform:uppercase; }
+.top-nav { background:var(--surface); border-bottom:1px solid var(--border); display:flex; padding:0 28px; }
+.top-nav button { background:none; border:none; border-bottom:2px solid transparent; padding:13px 0; margin-right:24px; font-size:11px; font-family:'Josefin Sans',sans-serif; font-weight:300; letter-spacing:.16em; text-transform:uppercase; color:var(--ink3); cursor:pointer; transition:color .2s,border-color .2s; }
+.top-nav button.active { color:var(--bordeaux); border-bottom-color:var(--bordeaux); }
+.lang-switcher { display:flex; border-bottom:1px solid var(--border); }
+.lang-tab { flex:1; padding:15px 20px; border:none; background:var(--surface2); font-family:'Josefin Sans',sans-serif; font-weight:200; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink3); cursor:pointer; transition:all .2s; border-bottom:3px solid transparent; display:flex; align-items:center; justify-content:center; gap:10px; }
+.lang-tab .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.lang-tab.en-tab.active { background:var(--blue-bg); color:var(--blue2); border-bottom-color:var(--blue); }
+.lang-tab.es-tab.active { background:var(--yellow-bg); color:var(--yellow2); border-bottom-color:var(--yellow); }
+.lang-tab.en-tab .dot { background:var(--blue); }
+.lang-tab.es-tab .dot { background:var(--yellow2); }
+main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:24px; margin-bottom:14px; }
+.card.en-accent { border-top:3px solid var(--blue); }
+.card.es-accent { border-top:3px solid var(--yellow); }
+.mode-row { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+.mode-btn { padding:5px 14px; border:1px solid var(--border); border-radius:99px; background:transparent; font-family:'Josefin Sans',sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink2); cursor:pointer; transition:all .15s; }
+.mode-btn.active.en { background:var(--blue); border-color:var(--blue); color:#fff; }
+.mode-btn.active.es { background:var(--yellow2); border-color:var(--yellow2); color:var(--ink); }
+.train-card { text-align:center; padding:32px 24px 24px; }
+.progress-wrap { height:2px; background:var(--surface2); border-radius:99px; margin-bottom:8px; overflow:hidden; }
+.progress-fill { height:2px; border-radius:99px; transition:width .4s ease; }
+.progress-fill.en { background:var(--blue); }
+.progress-fill.es { background:var(--yellow2); }
+.progress-label { font-size:11px; color:var(--ink3); text-align:right; margin-bottom:32px; letter-spacing:.08em; }
+.card-lang { font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; }
+.card-word { font-family:'Cormorant',serif; font-size:38px; font-weight:300; color:var(--ink); margin-bottom:28px; min-height:50px; line-height:1.2; font-style:italic; }
+.answer-row { display:flex; gap:10px; justify-content:center; margin-bottom:14px; }
+.answer-row input { max-width:300px; flex:1; padding:11px 14px; font-size:15px; font-family:'Josefin Sans',sans-serif; font-weight:200; letter-spacing:.04em; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--ink); outline:none; transition:border-color .2s; }
+.answer-row input:focus { border-color:var(--bordeaux); }
+.answer-row input.ok { border-color:var(--olive); background:#F0F2E4; }
+.answer-row input.err { border-color:#C0402A; background:#FAF0EE; }
+.submit-btn { padding:11px 20px; border:none; border-radius:6px; font-family:'Josefin Sans',sans-serif; font-size:13px; letter-spacing:.1em; cursor:pointer; transition:background .15s; }
+.submit-btn.en { background:var(--blue); color:#fff; }
+.submit-btn.en:hover { background:var(--blue2); }
+.submit-btn.es { background:var(--yellow2); color:var(--ink); }
+.submit-btn.es:hover { background:#B0A048; }
+.feedback { font-size:11px; min-height:18px; margin-bottom:6px; font-weight:300; letter-spacing:.12em; text-transform:uppercase; }
+.feedback.ok { color:var(--olive); }
+.feedback.err { color:#C0402A; }
+.correct-hint { font-size:15px; color:var(--ink2); min-height:22px; margin-bottom:14px; font-family:'Cormorant',serif; font-style:italic; }
+.skip-btn { background:none; border:none; font-size:11px; color:var(--ink3); cursor:pointer; font-family:'Josefin Sans',sans-serif; letter-spacing:.08em; text-transform:uppercase; text-decoration:underline; text-underline-offset:3px; }
+.skip-btn:hover { color:var(--ink2); }
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+.stat-box { background:var(--surface2); border-radius:8px; padding:12px; text-align:center; }
+.stat-num { font-family:'Cormorant',serif; font-size:28px; font-weight:300; }
+.stat-lbl { font-size:10px; color:var(--ink3); letter-spacing:.1em; text-transform:uppercase; margin-top:2px; }
+.empty-msg { text-align:center; padding:48px 20px; color:var(--ink2); }
+.empty-msg .big { font-family:'Cormorant',serif; font-size:22px; font-style:italic; margin-bottom:8px; }
+.empty-msg .sub { font-size:12px; color:var(--ink3); letter-spacing:.06em; }
+.finish-card { text-align:center; padding:48px 20px; }
+.finish-card .symbol { font-family:'Cormorant',serif; font-size:52px; font-weight:300; margin-bottom:10px; font-style:italic; }
+.finish-card .title { font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink3); margin-bottom:20px; }
+.finish-card .acc { font-family:'Cormorant',serif; font-size:52px; font-weight:300; margin-bottom:4px; }
+.finish-card .acc.en { color:var(--blue); }
+.finish-card .acc.es { color:var(--yellow2); }
+.finish-card .acc-lbl { font-size:11px; color:var(--ink3); letter-spacing:.12em; text-transform:uppercase; margin-bottom:24px; }
+.finish-card .sub { font-size:13px; color:var(--ink2); margin-bottom:24px; }
+/* Words tab */
+.words-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.words-header h2 { font-size:11px; font-weight:300; letter-spacing:.2em; text-transform:uppercase; color:var(--ink2); }
+.word-count { font-size:11px; color:var(--ink3); background:var(--surface2); padding:3px 11px; border-radius:99px; }
+.filter-row { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+.filter-btn { padding:4px 12px; border:1px solid var(--border); border-radius:99px; background:transparent; font-size:11px; font-family:'Josefin Sans',sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); cursor:pointer; }
+.filter-btn.active { background:var(--surface2); border-color:var(--surface3); color:var(--ink); }
+.word-list { display:flex; flex-direction:column; gap:5px; margin-bottom:18px; }
+.word-row { display:flex; align-items:center; gap:8px; padding:9px 12px; background:var(--bg); border:1px solid var(--border); border-radius:7px; border-left:3px solid transparent; }
+.word-row.en { border-left-color:var(--blue); }
+.word-row.es { border-left-color:var(--yellow2); }
+.lang-pill { font-size:10px; font-weight:300; letter-spacing:.1em; text-transform:uppercase; padding:2px 7px; border-radius:99px; flex-shrink:0; }
+.lang-pill.en { background:var(--blue-bg); color:var(--blue2); }
+.lang-pill.es { background:var(--yellow-bg); color:var(--yellow2); }
+.word-row input { flex:1; background:none; border:none; font-size:13px; font-family:'Josefin Sans',sans-serif; font-weight:200; letter-spacing:.04em; color:var(--ink); outline:none; min-width:50px; }
+.word-row .sep { color:var(--ink3); font-size:13px; flex-shrink:0; }
+.hits-badge { font-size:10px; color:var(--ink3); background:var(--surface2); padding:2px 7px; border-radius:99px; flex-shrink:0; white-space:nowrap; }
+.hits-badge.learned { background:#E4EBD8; color:var(--olive); }
+.del-btn { background:none; border:none; color:var(--ink3); cursor:pointer; font-size:16px; padding:0 2px; line-height:1; flex-shrink:0; }
+.del-btn:hover { color:var(--bordeaux); }
+.add-form { background:var(--cream); border:1px solid #DDD4B8; border-radius:10px; padding:18px; }
+.add-form .form-title { font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink3); margin-bottom:12px; }
+.add-form .row { display:flex; gap:8px; flex-wrap:wrap; }
+.add-form select,.add-form input { padding:9px 12px; border:1px solid #DDD4B8; border-radius:6px; background:var(--surface); font-family:'Josefin Sans',sans-serif; font-size:13px; font-weight:200; letter-spacing:.04em; color:var(--ink); outline:none; }
+.add-form select { min-width:68px; cursor:pointer; }
+.add-form input { flex:1; min-width:90px; }
+.add-form input:focus { border-color:var(--bordeaux); }
+.add-btn { padding:9px 18px; background:var(--bordeaux); color:var(--cream); border:none; border-radius:6px; font-family:'Josefin Sans',sans-serif; font-size:11px; font-weight:300; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
+.add-btn:hover { background:var(--bordeaux2); }
+.actions-row { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+.action-btn { padding:7px 14px; border:1px solid var(--border); border-radius:6px; background:var(--surface); font-family:'Josefin Sans',sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); cursor:pointer; transition:background .15s; }
+.action-btn:hover { background:var(--surface2); }
+.action-btn.danger { color:#C0402A; border-color:#E8C0B8; }
+.action-btn.danger:hover { background:#FAF0EE; }
+.btn { padding:10px 22px; border:1px solid var(--border); border-radius:7px; background:var(--surface); font-family:'Josefin Sans',sans-serif; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink); cursor:pointer; transition:background .15s; }
+.btn:hover { background:var(--surface2); }
+.btn-primary-en { background:var(--blue); border-color:var(--blue); color:#fff; }
+.btn-primary-en:hover { background:var(--blue2); }
+.btn-primary-es { background:var(--yellow2); border-color:var(--yellow2); color:var(--ink); }
+.no-words { text-align:center; padding:24px; color:var(--ink3); font-size:14px; font-style:italic; font-family:'Cormorant',serif; }
+.lang-section-header { font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink3); padding:8px 0 6px; display:flex; align-items:center; gap:10px; }
+.lang-section-header::after { content:''; flex:1; height:1px; background:var(--border); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Тренажёр</h1>
+    <span>EN · ES → RU</span>
+  </header>
+  <nav class="top-nav">
+    <button class="active" onclick="switchMainTab('train')" id="main-tab-train">Тренировка</button>
+    <button onclick="switchMainTab('words')" id="main-tab-words">Слова</button>
+  </nav>
+
+  <div id="tab-train">
+    <div class="lang-switcher">
+      <button class="lang-tab en-tab active" onclick="setLang('en')" id="lang-en-btn"><span class="dot"></span>English</button>
+      <button class="lang-tab es-tab" onclick="setLang('es')" id="lang-es-btn"><span class="dot"></span>Español</button>
+    </div>
+    <main>
+      <div id="train-empty" class="card empty-msg" style="display:none">
+        <div class="big">Нет слов для тренировки</div>
+        <div class="sub">Перейди во вкладку «Слова» и добавь карточки</div>
+      </div>
+      <div id="train-main" style="display:none">
+        <div class="mode-row" id="mode-row"></div>
+        <div class="card train-card" id="train-card">
+          <div class="progress-wrap"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+          <div class="progress-label" id="prog-label">0 / 0</div>
+          <div class="card-lang" id="card-lang"></div>
+          <div class="card-word" id="card-word"></div>
+          <div class="answer-row">
+            <input type="text" id="answer-input" placeholder="Введи перевод..." autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="handleKey(event)"/>
+            <button class="submit-btn" id="submit-btn" onclick="checkAnswer()">→</button>
+          </div>
+          <div class="feedback" id="feedback"></div>
+          <div class="correct-hint" id="correct-hint"></div>
+          <button class="skip-btn" onclick="skipCard()">не знаю — пропустить</button>
+        </div>
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-num" id="s-correct">0</div><div class="stat-lbl">Верно</div></div>
+          <div class="stat-box"><div class="stat-num" id="s-wrong">0</div><div class="stat-lbl">Ошибок</div></div>
+          <div class="stat-box"><div class="stat-num" id="s-left">0</div><div class="stat-lbl">Осталось</div></div>
+        </div>
+      </div>
+      <div id="train-finish" class="card finish-card" style="display:none">
+        <div class="symbol">✦</div>
+        <div class="title">Тренировка завершена</div>
+        <div class="acc" id="finish-acc">100%</div>
+        <div class="acc-lbl">точность</div>
+        <div class="sub" id="finish-sub"></div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn" id="finish-restart" onclick="restartSession()">Ещё раз</button>
+          <button class="btn" onclick="switchMainTab('words')">Слова</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="tab-words" style="display:none">
+    <main>
+      <div class="card">
+        <div class="words-header">
+          <h2>Все слова</h2>
+          <span class="word-count" id="word-count-badge">0 слов</span>
+        </div>
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="setFilter('all')" id="filter-all">Все</button>
+          <button class="filter-btn" onclick="setFilter('en')" id="filter-en">EN</button>
+          <button class="filter-btn" onclick="setFilter('es')" id="filter-es">ES</button>
+          <button class="filter-btn" onclick="setFilter('new')" id="filter-new">Новые</button>
+          <button class="filter-btn" onclick="setFilter('learned')" id="filter-learned">Выученные</button>
+        </div>
+        <div class="word-list" id="word-list"></div>
+        <div class="add-form">
+          <div class="form-title">Добавить слово</div>
+          <div class="row">
+            <select id="new-lang"><option value="en">EN</option><option value="es">ES</option></select>
+            <input type="text" id="new-word" placeholder="Слово или фраза" onkeydown="if(event.key==='Tab'){event.preventDefault();document.getElementById('new-trans').focus()}" autocomplete="off"/>
+            <input type="text" id="new-trans" placeholder="Перевод на русский" onkeydown="if(event.key==='Enter')addWord()" autocomplete="off"/>
+            <button class="add-btn" onclick="addWord()">+ Добавить</button>
+          </div>
+        </div>
+        <div class="actions-row">
+          <button class="action-btn" onclick="exportWords()">Экспорт .txt</button>
+          <button class="action-btn danger" onclick="clearAll()">Очистить всё</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const STORE_KEY = 'vocab_trainer_v3';
+const NEEDED = 10;
+
+// ── Preset words from Notion ──
+const PRESET_WORDS = [
+  // English — Lesson 3 (Market vocabulary)
+  {lang:'en',word:'stall',trans:'прилавок / лоток'},
+  {lang:'en',word:'to browse',trans:'разглядывать / ходить без цели'},
+  {lang:'en',word:'grab a bite',trans:'перекусить'},
+  {lang:'en',word:'queue',trans:'очередь / стоять в очереди'},
+  {lang:'en',word:'filling',trans:'сытный / начинка'},
+  {lang:'en',word:'vendor',trans:'продавец (на рынке)'},
+  {lang:'en',word:'local',trans:'местный'},
+  {lang:'en',word:'worth it',trans:'стоит того'},
+  // English — Fixed expressions
+  {lang:'en',word:'I ended up...',trans:'в итоге / в конце концов'},
+  {lang:'en',word:'It turned out...',trans:'оказалось, что...'},
+  {lang:'en',word:'We came across...',trans:'наткнулись на / случайно нашли'},
+  {lang:'en',word:'To be honest...',trans:'честно говоря'},
+  {lang:'en',word:'to be on track',trans:'делать хорошие успехи'},
+  {lang:'en',word:'to take steps',trans:'предпринимать шаги к цели'},
+  {lang:'en',word:'as of now',trans:'на данный момент'},
+  // Spanish — Lesson 1 (Barrio)
+  {lang:'es',word:'por eso',trans:'поэтому'},
+  {lang:'es',word:'antes de',trans:'перед тем как'},
+  {lang:'es',word:'después de',trans:'после того как'},
+  {lang:'es',word:'lugar',trans:'место'},
+  {lang:'es',word:'embajada',trans:'посольство'},
+  {lang:'es',word:'feo/a',trans:'уродливый/ая'},
+  {lang:'es',word:'ruidoso/a',trans:'шумный/ая'},
+  {lang:'es',word:'una zona peatonal',trans:'пешеходная зона'},
+  {lang:'es',word:'basura',trans:'мусор'},
+  {lang:'es',word:'el barrio',trans:'район'},
+  {lang:'es',word:'el vecino / la vecina',trans:'сосед / соседка'},
+  {lang:'es',word:'el ayuntamiento',trans:'мэрия'},
+  {lang:'es',word:'el semáforo',trans:'светофор'},
+  {lang:'es',word:'la acera',trans:'тротуар'},
+  {lang:'es',word:'la plaza',trans:'площадь'},
+  {lang:'es',word:'el mercado',trans:'рынок'},
+  {lang:'es',word:'tranquilo/a',trans:'спокойный/ая'},
+  {lang:'es',word:'animado/a',trans:'оживлённый/ая'},
+  {lang:'es',word:'mudarse',trans:'переехать'},
+  {lang:'es',word:'estar cerca de',trans:'находиться рядом с'},
+  {lang:'es',word:'estar lejos de',trans:'находиться далеко от'},
+  {lang:'es',word:'hace mucho tiempo',trans:'давно'},
+  {lang:'es',word:'a dos pasos de',trans:'в двух шагах от'},
+  {lang:'es',word:'estar en el centro',trans:'быть в центре'},
+  // Spanish — Lesson 2 (Casa, ropa, rutina)
+  {lang:'es',word:'el abrigo',trans:'пальто'},
+  {lang:'es',word:'la blusa',trans:'блузка'},
+  {lang:'es',word:'las botas',trans:'сапоги'},
+  {lang:'es',word:'la camiseta',trans:'футболка'},
+  {lang:'es',word:'la cazadora',trans:'куртка/ветровка'},
+  {lang:'es',word:'la chaqueta',trans:'пиджак/жакет'},
+  {lang:'es',word:'la falda',trans:'юбка'},
+  {lang:'es',word:'el jersey',trans:'свитер'},
+  {lang:'es',word:'el vestido',trans:'платье'},
+  {lang:'es',word:'los pantalones',trans:'брюки'},
+  {lang:'es',word:'los zapatos',trans:'туфли/ботинки'},
+  {lang:'es',word:'el sombrero',trans:'шляпа'},
+  {lang:'es',word:'guapo/a — feo/a',trans:'красивый — некрасивый'},
+  {lang:'es',word:'alto/a — bajo/a',trans:'высокий — низкий'},
+  {lang:'es',word:'delgado/a — gordo/a',trans:'худой — полный'},
+  {lang:'es',word:'calvo/a',trans:'лысый/ая'},
+  {lang:'es',word:'moreno/a',trans:'темноволосый/ая'},
+  {lang:'es',word:'rubio/a',trans:'блондин/блондинка'},
+  {lang:'es',word:'pelirrojo/a',trans:'рыжий/ая'},
+  {lang:'es',word:'el pelo rizado',trans:'вьющиеся волосы'},
+  {lang:'es',word:'el pelo liso',trans:'прямые волосы'},
+  {lang:'es',word:'llevar gafas',trans:'носить очки'},
+  {lang:'es',word:'llevar barba',trans:'носить бороду'},
+  {lang:'es',word:'la nevera',trans:'холодильник'},
+  {lang:'es',word:'el horno',trans:'духовка'},
+  {lang:'es',word:'la sartén',trans:'сковорода'},
+  {lang:'es',word:'la olla',trans:'кастрюля'},
+  {lang:'es',word:'la cafetera',trans:'кофемашина/кофеварка'},
+  {lang:'es',word:'el fregadero',trans:'раковина'},
+  {lang:'es',word:'la cuchara',trans:'ложка'},
+  {lang:'es',word:'el tenedor',trans:'вилка'},
+  {lang:'es',word:'el cuchillo',trans:'нож'},
+  {lang:'es',word:'la taza',trans:'чашка'},
+  {lang:'es',word:'el salón',trans:'гостиная'},
+  {lang:'es',word:'el dormitorio',trans:'спальня'},
+  {lang:'es',word:'el despacho',trans:'кабинет'},
+  {lang:'es',word:'el baño',trans:'ванная'},
+  {lang:'es',word:'la cama',trans:'кровать'},
+  {lang:'es',word:'el sofá',trans:'диван'},
+  {lang:'es',word:'el armario',trans:'шкаф'},
+  {lang:'es',word:'la estantería',trans:'полка/стеллаж'},
+  {lang:'es',word:'la lavadora',trans:'стиральная машина'},
+  {lang:'es',word:'a la derecha de',trans:'справа от'},
+  {lang:'es',word:'a la izquierda de',trans:'слева от'},
+  {lang:'es',word:'enfrente de',trans:'напротив'},
+  {lang:'es',word:'encima de',trans:'над / сверху'},
+  {lang:'es',word:'debajo de',trans:'под'},
+  {lang:'es',word:'detrás de',trans:'позади / за'},
+  {lang:'es',word:'entre',trans:'между'},
+  {lang:'es',word:'al lado de',trans:'рядом с / сбоку от'},
+  // Numbers
+  {lang:'es',word:'primero/a',trans:'первый/ая'},
+  {lang:'es',word:'segundo/a',trans:'второй/ая'},
+  {lang:'es',word:'tercero/a',trans:'третий/ья'},
+  {lang:'es',word:'cuarto/a',trans:'четвёртый/ая'},
+  {lang:'es',word:'quinto/a',trans:'пятый/ая'},
+];
+
+let words = [];
+let idCounter = 1;
+let queue = [], current = null;
+let currentLang = 'en';
+let mode = 'both';
+let sessionCorrect = 0, sessionWrong = 0;
+let filter = 'all';
+let answerLocked = false;
+
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify({words, idCounter})); }
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+    if (d && d.words && d.words.length) { words=d.words; idCounter=d.idCounter||1; return; }
+  } catch(e){}
+  // First launch — load presets
+  PRESET_WORDS.forEach(w => words.push({id:idCounter++, ...w, totalCorrect:0}));
+  save();
+}
+
+function switchMainTab(t) {
+  document.getElementById('tab-train').style.display = t==='train'?'':'none';
+  document.getElementById('tab-words').style.display = t==='words'?'':'none';
+  document.getElementById('main-tab-train').classList.toggle('active', t==='train');
+  document.getElementById('main-tab-words').classList.toggle('active', t==='words');
+  if (t==='train') initSession(); else renderWordList();
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('lang-en-btn').classList.toggle('active', lang==='en');
+  document.getElementById('lang-es-btn').classList.toggle('active', lang==='es');
+  document.getElementById('train-card').className = 'card train-card '+lang+'-accent';
+  document.getElementById('submit-btn').className = 'submit-btn '+lang;
+  document.getElementById('prog-fill').className = 'progress-fill '+lang;
+  renderModeBtns();
+  initSession();
+}
+
+function renderModeBtns() {
+  const label = currentLang==='en'?'EN':'ES';
+  document.getElementById('mode-row').innerHTML = `
+    <button class="mode-btn active ${currentLang}" id="mode-both" onclick="setMode('both')">${label} ↔ RU</button>
+    <button class="mode-btn ${currentLang}" id="mode-fwd" onclick="setMode('fwd')">${label} → RU</button>
+    <button class="mode-btn ${currentLang}" id="mode-rev" onclick="setMode('rev')">RU → ${label}</button>`;
+}
+
+function setMode(m) {
+  mode = m;
+  ['both','fwd','rev'].forEach(x => { const b=document.getElementById('mode-'+x); if(b) b.classList.toggle('active',x===m); });
+  initSession();
+}
+
+function shuffle(a) { return [...a].sort(()=>Math.random()-.5); }
+
+function buildQueue() {
+  const pool = [];
+  words.filter(w=>w.lang===currentLang).forEach(w => {
+    if (mode==='fwd'||mode==='both') pool.push({wid:w.id,dir:'fwd',hits:0});
+    if (mode==='rev'||mode==='both') pool.push({wid:w.id,dir:'rev',hits:0});
+  });
+  return shuffle(pool);
+}
+
+function initSession() {
+  renderModeBtns();
+  ['both','fwd','rev'].forEach(x=>{const b=document.getElementById('mode-'+x);if(b)b.classList.toggle('active',x===mode);});
+  const langWords = words.filter(w=>w.lang===currentLang);
+  if (!langWords.length) {
+    document.getElementById('train-empty').style.display='';
+    document.getElementById('train-main').style.display='none';
+    document.getElementById('train-finish').style.display='none';
+    return;
+  }
+  document.getElementById('train-empty').style.display='none';
+  document.getElementById('train-main').style.display='';
+  document.getElementById('train-finish').style.display='none';
+  document.getElementById('train-card').className='card train-card '+currentLang+'-accent';
+  document.getElementById('submit-btn').className='submit-btn '+currentLang;
+  document.getElementById('prog-fill').className='progress-fill '+currentLang;
+  queue=buildQueue(); sessionCorrect=0; sessionWrong=0;
+  updateStats(); nextCard();
+}
+
+function nextCard() {
+  answerLocked = false;
+  const pending = queue.filter(c=>c.hits<NEEDED);
+  if (!pending.length) { showFinish(); return; }
+  const pool = pending.slice(0,Math.min(5,pending.length));
+  current = pool[Math.floor(Math.random()*pool.length)];
+  const w = words.find(x=>x.id===current.wid);
+  if (!w) { nextCard(); return; }
+  const isFwd = current.dir==='fwd';
+  document.getElementById('card-lang').textContent = isFwd?(w.lang==='es'?'Испанский':'Английский'):'Русский';
+  document.getElementById('card-word').textContent = isFwd?w.word:w.trans;
+  const inp = document.getElementById('answer-input');
+  inp.value=''; inp.className='';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('correct-hint').textContent='';
+  setTimeout(()=>inp.focus(),50);
+  updateStats();
+}
+
+function normalize(s) { return s.trim().toLowerCase().replace(/[.,!?;:'"«»()\/]/g,'').replace(/\s+/g,' '); }
+
+function checkAnswer() {
+  if (!current||answerLocked) return;
+  const w = words.find(x=>x.id===current.wid);
+  if (!w) return;
+  const inp = document.getElementById('answer-input');
+  const input = inp.value.trim();
+  if (!input) { inp.focus(); return; }
+  const correct = current.dir==='fwd'?w.trans:w.word;
+  const alts = correct.split('/').map(normalize);
+  const userN = normalize(input);
+  const ok = alts.some(a=>userN===a||(a.split(' ').length>1&&a.startsWith(userN)));
+  const fb = document.getElementById('feedback');
+  if (ok) {
+    current.hits++; w.totalCorrect=(w.totalCorrect||0)+1; sessionCorrect++;
+    fb.textContent=['Верно','Отлично','Правильно','Так держать'][Math.floor(Math.random()*4)];
+    fb.className='feedback ok'; inp.className='ok';
+    document.getElementById('correct-hint').textContent='';
+    answerLocked=true; save();
+    setTimeout(()=>nextCard(),700);
+  } else {
+    sessionWrong++;
+    fb.textContent='Не совсем';
+    fb.className='feedback err';
+    document.getElementById('correct-hint').textContent='Правильно: '+correct;
+    inp.className='err'; inp.value='';
+    setTimeout(()=>{inp.className='';inp.focus();},600);
+  }
+  updateStats();
+}
+
+function skipCard() {
+  if (!current||answerLocked) return;
+  const w = words.find(x=>x.id===current.wid);
+  const correct = w?(current.dir==='fwd'?w.trans:w.word):'';
+  sessionWrong++;
+  document.getElementById('feedback').textContent='Пропущено';
+  document.getElementById('feedback').className='feedback err';
+  document.getElementById('correct-hint').textContent='Правильно: '+correct;
+  answerLocked=true;
+  setTimeout(()=>nextCard(),900);
+  updateStats();
+}
+
+function handleKey(e) { if(e.key==='Enter') checkAnswer(); }
+
+function updateStats() {
+  const pending = queue.filter(c=>c.hits<NEEDED).length;
+  const done = queue.length-pending;
+  const pct = queue.length?Math.round(done/queue.length*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=done+' / '+queue.length;
+  document.getElementById('s-correct').textContent=sessionCorrect;
+  document.getElementById('s-wrong').textContent=sessionWrong;
+  document.getElementById('s-left').textContent=pending;
+}
+
+function showFinish() {
+  document.getElementById('train-main').style.display='none';
+  document.getElementById('train-finish').style.display='';
+  const total=sessionCorrect+sessionWrong;
+  const acc=total>0?Math.round(sessionCorrect/total*100):100;
+  const el=document.getElementById('finish-acc');
+  el.textContent=acc+'%'; el.className='acc '+currentLang;
+  document.getElementById('finish-sub').textContent=`Верно: ${sessionCorrect} · Ошибок: ${sessionWrong} · Карточек: ${queue.length}`;
+  const rb=document.getElementById('finish-restart');
+  rb.className='btn '+(currentLang==='en'?'btn-primary-en':'btn-primary-es');
+}
+
+function restartSession() { initSession(); }
+
+function setFilter(f) {
+  filter=f;
+  ['all','en','es','new','learned'].forEach(x=>document.getElementById('filter-'+x).classList.toggle('active',x===f));
+  renderWordList();
+}
+
+function getFiltered() {
+  return words.filter(w=>{
+    if(filter==='en') return w.lang==='en';
+    if(filter==='es') return w.lang==='es';
+    if(filter==='new') return (w.totalCorrect||0)<NEEDED;
+    if(filter==='learned') return (w.totalCorrect||0)>=NEEDED;
+    return true;
+  });
+}
+
+function renderWordList() {
+  const list=document.getElementById('word-list');
+  const filtered=getFiltered();
+  document.getElementById('word-count-badge').textContent=words.length+' '+plural(words.length,'слово','слова','слов');
+  if (!filtered.length) { list.innerHTML='<div class="no-words">Нет слов в этой категории</div>'; return; }
+  let html='';
+  if (filter==='all') {
+    const en=filtered.filter(w=>w.lang==='en');
+    const es=filtered.filter(w=>w.lang==='es');
+    if(en.length) html+=`<div class="lang-section-header">English</div>`+en.map(rowHtml).join('');
+    if(es.length) html+=`<div class="lang-section-header" style="margin-top:10px">Español</div>`+es.map(rowHtml).join('');
+  } else html=filtered.map(rowHtml).join('');
+  list.innerHTML=html;
+}
+
+function rowHtml(w) {
+  const learned=(w.totalCorrect||0)>=NEEDED;
+  return `<div class="word-row ${w.lang}">
+    <span class="lang-pill ${w.lang}">${w.lang.toUpperCase()}</span>
+    <input type="text" value="${esc(w.word)}" onchange="updateWord(${w.id},'word',this.value)"/>
+    <span class="sep">↔</span>
+    <input type="text" value="${esc(w.trans)}" onchange="updateWord(${w.id},'trans',this.value)"/>
+    <span class="hits-badge ${learned?'learned':''}">${learned?'✓ выучено':(w.totalCorrect||0)+'/'+NEEDED}</span>
+    <button class="del-btn" onclick="deleteWord(${w.id})">×</button>
+  </div>`;
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function plural(n,a,b,c) { const m=n%100; if(m>=11&&m<=14)return c; const r=n%10; if(r===1)return a; if(r>=2&&r<=4)return b; return c; }
+
+function addWord() {
+  const lang=document.getElementById('new-lang').value;
+  const word=document.getElementById('new-word').value.trim();
+  const trans=document.getElementById('new-trans').value.trim();
+  if(!word||!trans){(!word?document.getElementById('new-word'):document.getElementById('new-trans')).focus();return;}
+  words.push({id:idCounter++,lang,word,trans,totalCorrect:0});
+  document.getElementById('new-word').value=''; document.getElementById('new-trans').value='';
+  document.getElementById('new-word').focus();
+  save(); renderWordList();
+}
+function updateWord(id,field,val){const w=words.find(x=>x.id===id);if(w){w[field]=val.trim();save();}}
+function deleteWord(id){if(!confirm('Удалить это слово?'))return;words=words.filter(x=>x.id!==id);save();renderWordList();}
+function clearAll(){if(!confirm('Удалить все слова? Это нельзя отменить.'))return;words=[];save();renderWordList();}
+function exportWords(){
+  const lines=words.map(w=>`[${w.lang.toUpperCase()}] ${w.word} → ${w.trans}`);
+  const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='vocab_'+new Date().toISOString().slice(0,10)+'.txt';a.click();
+}
+
+load();
+renderWordList();
+setLang('en');
+initSession();
+</script>
+</body>
+</html>
