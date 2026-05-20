@@ -118,6 +118,10 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 .no-words { text-align:center; padding:24px; color:var(--ink3); font-size:14px; font-style:italic; font-family:'Cormorant',serif; }
 .lang-section-header { font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink3); padding:8px 0 6px; display:flex; align-items:center; gap:10px; }
 .lang-section-header::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.peek-answer { font-family:'Cormorant',serif; font-size:22px; font-style:italic; color:var(--bordeaux); margin:14px 0 10px; padding:14px 18px; background:var(--cream); border-radius:8px; border-left:3px solid var(--bordeaux); line-height:1.4; }
+.peek-next-btn { display:block; width:100%; padding:14px 24px; border:none; border-radius:8px; font-family:'Josefin Sans',sans-serif; font-size:13px; font-weight:300; letter-spacing:.16em; text-transform:uppercase; cursor:pointer; background:var(--olive); color:#fff; transition:background .15s; margin-bottom:4px; }
+.peek-next-btn:hover { background:#5A5A22; }
 </style>
 </head>
 <body>
@@ -152,6 +156,10 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
           <div class="feedback" id="feedback"></div>
           <div class="correct-hint" id="correct-hint"></div>
           <button class="skip-btn" onclick="skipCard()">не знаю — пропустить</button>
+          <div id="peek-block" style="display:none">
+            <div class="peek-answer" id="peek-answer"></div>
+            <button class="peek-next-btn" id="peek-next-btn" onclick="nextCard()">Запомнил — дальше →</button>
+          </div>
           <button class="submit-btn" id="submit-btn" onclick="checkAnswer()">Проверить</button>
         </div>
         <div class="stats-row">
@@ -208,7 +216,7 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 </div>
 
 <script>
-const STORE_KEY = 'vocab_trainer_v6';
+const STORE_KEY = 'vocab_trainer_v7';
 const NEEDED = 10;
 
 // ── Preset words from Notion ──
@@ -612,6 +620,9 @@ function initSession() {
 
 function nextCard() {
   answerLocked = false;
+  // Hide peek block, restore submit button
+  document.getElementById('peek-block').style.display='none';
+  document.getElementById('submit-btn').style.display='';
   const pending = queue.filter(c=>c.hits<NEEDED);
   if (!pending.length) { showFinish(); return; }
   const pool = pending.slice(0,Math.min(5,pending.length));
@@ -655,9 +666,13 @@ function checkAnswer() {
     sessionWrong++;
     fb.textContent='Не совсем';
     fb.className='feedback err';
-    document.getElementById('correct-hint').textContent='Правильно: '+correct;
+    document.getElementById('correct-hint').textContent='';
     inp.className='answer-input-full err'; inp.value='';
-    setTimeout(()=>{inp.className='answer-input-full';inp.focus();},600);
+    // Show peek block with correct answer
+    document.getElementById('peek-answer').textContent=correct;
+    document.getElementById('peek-block').style.display='';
+    document.getElementById('submit-btn').style.display='none';
+    setTimeout(()=>{inp.className='answer-input-full';inp.focus();},300);
   }
   updateStats();
 }
@@ -669,9 +684,11 @@ function skipCard() {
   sessionWrong++;
   document.getElementById('feedback').textContent='Пропущено';
   document.getElementById('feedback').className='feedback err';
-  document.getElementById('correct-hint').textContent='Правильно: '+correct;
+  document.getElementById('correct-hint').textContent='';
+  document.getElementById('peek-answer').textContent=correct;
+  document.getElementById('peek-block').style.display='';
+  document.getElementById('submit-btn').style.display='none';
   answerLocked=true;
-  setTimeout(()=>nextCard(),900);
   updateStats();
 }
 
