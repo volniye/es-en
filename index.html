@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Тренажёр слов</title>
+<title>Word Trainer</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@100;200;300&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -46,21 +46,20 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 .progress-label { font-size:11px; color:var(--ink3); text-align:right; margin-bottom:32px; letter-spacing:.08em; }
 .card-lang { font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; }
 .card-word { font-family:'Cormorant',serif; font-size:38px; font-weight:300; color:var(--ink); margin-bottom:28px; min-height:50px; line-height:1.2; font-style:italic; }
-.answer-row { display:flex; gap:10px; justify-content:center; margin-bottom:14px; }
-.answer-row input { max-width:300px; flex:1; padding:11px 14px; font-size:15px; font-family:'Josefin Sans',sans-serif; font-weight:200; letter-spacing:.04em; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--ink); outline:none; transition:border-color .2s; }
-.answer-row input:focus { border-color:var(--bordeaux); }
-.answer-row input.ok { border-color:var(--olive); background:#F0F2E4; }
-.answer-row input.err { border-color:#C0402A; background:#FAF0EE; }
-.submit-btn { padding:11px 20px; border:none; border-radius:6px; font-family:'Josefin Sans',sans-serif; font-size:13px; letter-spacing:.1em; cursor:pointer; transition:background .15s; }
+.answer-input-full { width:100%; padding:13px 16px; font-size:16px; font-family:'Josefin Sans',sans-serif; font-weight:200; letter-spacing:.04em; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--ink); outline:none; transition:border-color .2s; margin-bottom:14px; text-align:center; }
+.answer-input-full:focus { border-color:var(--bordeaux); }
+.answer-input-full.ok { border-color:var(--olive); background:#F0F2E4; }
+.answer-input-full.err { border-color:#C0402A; background:#FAF0EE; }
+.submit-btn { display:block; width:100%; padding:18px 24px; border:none; border-radius:10px; font-family:'Josefin Sans',sans-serif; font-size:15px; font-weight:300; letter-spacing:.2em; text-transform:uppercase; cursor:pointer; transition:all .15s; margin-top:20px; box-shadow:0 2px 8px rgba(0,0,0,0.10); }
 .submit-btn.en { background:var(--blue); color:#fff; }
 .submit-btn.en:hover { background:var(--blue2); }
 .submit-btn.es { background:var(--yellow2); color:var(--ink); }
 .submit-btn.es:hover { background:#B0A048; }
-.feedback { font-size:11px; min-height:18px; margin-bottom:6px; font-weight:300; letter-spacing:.12em; text-transform:uppercase; }
+.feedback { font-size:11px; min-height:18px; margin-bottom:4px; font-weight:300; letter-spacing:.12em; text-transform:uppercase; }
 .feedback.ok { color:var(--olive); }
 .feedback.err { color:#C0402A; }
-.correct-hint { font-size:15px; color:var(--ink2); min-height:22px; margin-bottom:14px; font-family:'Cormorant',serif; font-style:italic; }
-.skip-btn { background:none; border:none; font-size:11px; color:var(--ink3); cursor:pointer; font-family:'Josefin Sans',sans-serif; letter-spacing:.08em; text-transform:uppercase; text-decoration:underline; text-underline-offset:3px; }
+.correct-hint { font-size:15px; color:var(--ink2); min-height:22px; margin-bottom:10px; font-family:'Cormorant',serif; font-style:italic; }
+.skip-btn { background:none; border:none; font-size:11px; color:var(--ink3); cursor:pointer; font-family:'Josefin Sans',sans-serif; letter-spacing:.08em; text-transform:uppercase; text-decoration:underline; text-underline-offset:3px; display:block; margin:0 auto 2px; }
 .skip-btn:hover { color:var(--ink2); }
 .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
 .stat-box { background:var(--surface2); border-radius:8px; padding:12px; text-align:center; }
@@ -124,7 +123,7 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 <body>
 <div class="app">
   <header>
-    <h1>Тренажёр</h1>
+    <h1>Word Trainer</h1>
     <span>EN · ES → RU</span>
   </header>
   <nav class="top-nav">
@@ -149,13 +148,11 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
           <div class="progress-label" id="prog-label">0 / 0</div>
           <div class="card-lang" id="card-lang"></div>
           <div class="card-word" id="card-word"></div>
-          <div class="answer-row">
-            <input type="text" id="answer-input" placeholder="Введи перевод..." autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="handleKey(event)"/>
-            <button class="submit-btn" id="submit-btn" onclick="checkAnswer()">→</button>
-          </div>
+          <input class="answer-input-full" type="text" id="answer-input" placeholder="Введи перевод..." autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="handleKey(event)"/>
           <div class="feedback" id="feedback"></div>
           <div class="correct-hint" id="correct-hint"></div>
           <button class="skip-btn" onclick="skipCard()">не знаю — пропустить</button>
+          <button class="submit-btn" id="submit-btn" onclick="checkAnswer()">Проверить</button>
         </div>
         <div class="stats-row">
           <div class="stat-box"><div class="stat-num" id="s-correct">0</div><div class="stat-lbl">Верно</div></div>
@@ -211,7 +208,7 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 </div>
 
 <script>
-const STORE_KEY = 'vocab_trainer_v3';
+const STORE_KEY = 'vocab_trainer_v6';
 const NEEDED = 10;
 
 // ── Preset words from Notion ──
@@ -315,6 +312,218 @@ const PRESET_WORDS = [
   {lang:'es',word:'tercero/a',trans:'третий/ья'},
   {lang:'es',word:'cuarto/a',trans:'четвёртый/ая'},
   {lang:'es',word:'quinto/a',trans:'пятый/ая'},
+  // English — from Instagram (english_in_stories)
+  {lang:'en',word:'pure bred',trans:'чистокровный / породистый'},
+  {lang:'en',word:'still on',trans:'всё ещё в силе / планы не отменились'},
+  {lang:'en',word:'Are we still on?',trans:'Мы всё ещё встречаемся? (подтверждение планов)'},
+  {lang:'en',word:'must have been',trans:'должно быть было / наверное было (уверенность о прошлом)'},
+  {lang:'en',word:'must not have been',trans:'наверное не было / не мог быть (логический вывод о прошлом)'},
+  {lang:'en',word:'to fizzle out',trans:'угаснуть / сойти на нет'},
+  {lang:'en',word:'haven\'t seen',trans:'не видел/а (Present Perfect)'},
+  {lang:'en',word:'to click instantly',trans:'сразу найти общий язык / сразу понравиться друг другу'},
+  {lang:'en',word:'hard relate',trans:'полностью согласен / очень понимаю / сильно резонирует'},
+  {lang:'en',word:'on the dot',trans:'ровно / точно в указанное время'},
+  {lang:'en',word:'legit',trans:'настоящий / реальный / классный / не фейк'},
+  {lang:'en',word:'full stop',trans:'точка (британский английский)'},
+  {lang:'en',word:'period',trans:'точка (американский английский)'},
+  {lang:'en',word:'merch',trans:'мерч / товары с логотипом бренда'},
+  {lang:'en',word:'lovable',trans:'милый / такой, которого легко любить'},
+  {lang:'en',word:'sturdy',trans:'прочный / крепкий / надёжный'},
+  {lang:'en',word:'species',trans:'вид / разновидность (животных, растений)'},
+  {lang:'en',word:'raw',trans:'сырой / необработанный / натуральный'},
+  {lang:'en',word:'tried and tested',trans:'проверенный / испытанный многократно'},
+  {lang:'en',word:'to go for it',trans:'решиться / дерзнуть / попробовать'},
+  // English — top verbs (66-100)
+  {lang:'en',word:'to teach',trans:'учить / преподавать'},
+  {lang:'en',word:'to offer',trans:'предлагать'},
+  {lang:'en',word:'to remember',trans:'помнить / вспоминать'},
+  {lang:'en',word:'to consider',trans:'считать / рассматривать'},
+  {lang:'en',word:'to appear',trans:'появляться / казаться'},
+  {lang:'en',word:'to buy',trans:'покупать'},
+  {lang:'en',word:'to serve',trans:'служить / обслуживать'},
+  {lang:'en',word:'to die',trans:'умирать'},
+  {lang:'en',word:'to send',trans:'посылать / отправлять'},
+  {lang:'en',word:'to build',trans:'строить'},
+  {lang:'en',word:'to stay',trans:'оставаться / находиться'},
+  {lang:'en',word:'to fall',trans:'падать'},
+  {lang:'en',word:'to cut',trans:'резать'},
+  {lang:'en',word:'to reach',trans:'достигать / дотягиваться'},
+  {lang:'en',word:'to kill',trans:'убивать'},
+  {lang:'en',word:'to raise',trans:'поднимать / воспитывать'},
+  {lang:'en',word:'to pass',trans:'проходить / миновать'},
+  {lang:'en',word:'to sell',trans:'продавать'},
+  {lang:'en',word:'to decide',trans:'решать'},
+  {lang:'en',word:'to return',trans:'возвращаться'},
+  {lang:'en',word:'to explain',trans:'объяснять'},
+  {lang:'en',word:'to hope',trans:'надеяться'},
+  {lang:'en',word:'to develop',trans:'развивать / разрабатывать'},
+  {lang:'en',word:'to carry',trans:'везти / нести / носить'},
+  {lang:'en',word:'to break',trans:'ломать / разбивать'},
+  {lang:'en',word:'to receive',trans:'получать'},
+  {lang:'en',word:'to agree',trans:'соглашаться'},
+  {lang:'en',word:'to support',trans:'поддерживать'},
+  {lang:'en',word:'to hit',trans:'ударять / бить'},
+  {lang:'en',word:'to produce',trans:'производить / создавать'},
+  {lang:'en',word:'to eat',trans:'есть / кушать'},
+  {lang:'en',word:'to cover',trans:'покрывать / охватывать'},
+  {lang:'en',word:'to catch',trans:'ловить / поймать'},
+  {lang:'en',word:'to draw',trans:'рисовать / тянуть'},
+  {lang:'en',word:'to choose',trans:'выбирать'},
+  // English — phrasal verbs
+  {lang:'en',word:'to fall behind with smth',trans:'отставать по срокам'},
+  {lang:'en',word:'to scrape through smth',trans:'с большим трудом сделать / кое-как справиться'},
+  {lang:'en',word:'to go through smth',trans:'переживать / испытывать трудности в чём-то'},
+  {lang:'en',word:'to lay smb off',trans:'увольнять'},
+  {lang:'en',word:'to work smth off',trans:'избавиться от стресса / вымещать злость на ком-то'},
+  {lang:'en',word:'to tie smb up',trans:'загружать работой / делать кого-то занятым'},
+  {lang:'en',word:'to work through',trans:'решать / разбираться с проблемой'},
+  {lang:'en',word:'to sort smth out',trans:'разбираться / улаживать / сортировать'},
+  {lang:'en',word:'to be snowed under',trans:'быть заваленным работой / делами'},
+  {lang:'en',word:'to pile up',trans:'накапливаться (о работе, задачах)'},
+  {lang:'en',word:'to slave away',trans:'вкалывать / работать на износ / надрываться'},
+  {lang:'en',word:'to run up against smth',trans:'сталкиваться с чем-либо'},
+  {lang:'en',word:'to call in sick',trans:'отпроситься с работы, сославшись на болезнь'},
+  {lang:'en',word:'to burn out',trans:'выгореть / дойти до предела'},
+  {lang:'en',word:'to shut down',trans:'закрывать (бизнес, предприятие)'},
+  {lang:'en',word:'to catch up with smb',trans:'сказываться / давать о себе знать'},
+  {lang:'en',word:'to keep up with',trans:'идти в ногу с / не отставать от'},
+  {lang:'en',word:'to get through smth',trans:'разделаться с чем-либо / рассмотреть что-то'},
+  {lang:'en',word:'to go through',trans:'быть принятым / одобренным / состояться'},
+  {lang:'en',word:'to go through with',trans:'выполнять (обещание, договор)'},
+  {lang:'en',word:'to get on',trans:'преуспевать / делать успехи / справляться'},
+  {lang:'en',word:'to get ahead in',trans:'преуспевать в / продвинуться в'},
+  {lang:'en',word:'to follow up through',trans:'доводить до конца / завершать'},
+  {lang:'en',word:'to work up to smth',trans:'готовиться к чему-либо'},
+  // Spanish — new lesson words
+  {lang:'es',word:'mejorar',trans:'улучшать / улучшаться'},
+  {lang:'es',word:'deporte de riesgo',trans:'экстремальный спорт'},
+  {lang:'es',word:'deporte',trans:'спорт'},
+  {lang:'es',word:'coste adicional',trans:'дополнительная стоимость'},
+  {lang:'es',word:'devolver',trans:'возвращать / вернуть'},
+  {lang:'es',word:'mi sueño',trans:'моя мечта'},
+  {lang:'es',word:'quiero viajar en barco en alta mar para ver ballenas',trans:'хочу путешествовать на корабле в открытом море, чтобы увидеть китов'},
+  {lang:'es',word:'sueño con ver ballenas',trans:'я мечтаю увидеть китов'},
+  {lang:'es',word:'entonces no podemos ver ballenas',trans:'значит, мы не можем увидеть китов'},
+  {lang:'es',word:'si me mareo, no puedo ver ballenas',trans:'если меня укачает, я не смогу увидеть китов'},
+  {lang:'es',word:'si no me mareo, puedo viajar en barco',trans:'если меня не укачает, могу путешествовать на корабле'},
+  {lang:'es',word:'si tengo dinero, puedo reservar una clase de moto acuática',trans:'если у меня будут деньги, могу забронировать урок на гидроцикле'},
+  {lang:'es',word:'si toca el premio',trans:'если выиграю приз / если повезёт'},
+  {lang:'es',word:'todos ganamos',trans:'все выигрываем / все в выигрыше'},
+  {lang:'es',word:'cuponazo',trans:'большой лотерейный выигрыш (разг.)'},
+  {lang:'es',word:'momentín',trans:'моментик / секундочку (уменьш. от momento)'},
+  {lang:'es',word:'perro → perrín',trans:'собачка (уменьш. астурийский/разг.)'},
+  {lang:'es',word:'un segundo → un segundín',trans:'секундочку (уменьш. астурийский)'},
+  {lang:'es',word:'Gijón → Xixón (ast.)',trans:'Хихон по-астурийски'},
+  {lang:'es',word:'es = ye (asturiano)',trans:'«есть/является» — по-астурийски ye вместо es'},
+  {lang:'es',word:'hacer = fai (asturiano)',trans:'«делать/делает» — по-астурийски fai вместо hace'},
+  {lang:'es',word:'hace frío / fai fríu (ast.)',trans:'холодно (hace frío — исп., fai fríu — астур.)'},
+  {lang:'es',word:'bastante',trans:'довольно / достаточно'},
+  {lang:'es',word:'tremendo/a',trans:'огромный / невероятный / потрясающий'},
+  {lang:'es',word:'escoger',trans:'выбирать'},
+  {lang:'es',word:'tampoco',trans:'тоже не / и не (в отрицании)'},
+  {lang:'es',word:'no me gusta el fútbol y tampoco el boxeo',trans:'мне не нравится футбол и бокс тоже'},
+  {lang:'es',word:'asilo',trans:'убежище / приют / дом престарелых'},
+  {lang:'es',word:'misa',trans:'месса / церковная служба'},
+  {lang:'es',word:'ir a misa',trans:'идти на мессу / в церковь'},
+  {lang:'es',word:'concertar una cita',trans:'назначить встречу / записаться'},
+  {lang:'es',word:'pa un cafetín',trans:'на кофеёк (разг. астур.: pa = para, cafetín = уменьш.)'},
+  {lang:'es',word:'hacer un bote',trans:'скинуться / собрать деньги в общий котёл'},
+  // Spanish — top verbs
+  {lang:'es',word:'poder',trans:'мочь'},
+  {lang:'es',word:'decir',trans:'сказать / говорить'},
+  {lang:'es',word:'ir',trans:'идти / ехать'},
+  {lang:'es',word:'ver',trans:'видеть'},
+  {lang:'es',word:'dar',trans:'давать'},
+  {lang:'es',word:'saber',trans:'знать'},
+  {lang:'es',word:'querer',trans:'хотеть / любить'},
+  {lang:'es',word:'llegar',trans:'прибывать / приходить'},
+  {lang:'es',word:'pasar',trans:'проходить / происходить'},
+  {lang:'es',word:'deber',trans:'быть должным / должен'},
+  {lang:'es',word:'poner',trans:'класть / ставить'},
+  {lang:'es',word:'parecer',trans:'казаться'},
+  {lang:'es',word:'quedar',trans:'оставаться / договориться о встрече'},
+  {lang:'es',word:'creer',trans:'верить / думать'},
+  {lang:'es',word:'hablar',trans:'говорить / разговаривать'},
+  {lang:'es',word:'llevar',trans:'нести / носить / везти'},
+  {lang:'es',word:'dejar',trans:'оставлять / бросать'},
+  {lang:'es',word:'seguir',trans:'следовать / продолжать'},
+  {lang:'es',word:'encontrar',trans:'находить'},
+  {lang:'es',word:'llamar',trans:'звать / называть / звонить'},
+  {lang:'es',word:'venir',trans:'приходить / приезжать'},
+  {lang:'es',word:'pensar',trans:'думать'},
+  {lang:'es',word:'salir',trans:'выходить / уходить'},
+  {lang:'es',word:'volver',trans:'возвращаться'},
+  {lang:'es',word:'tomar',trans:'брать / принимать'},
+  {lang:'es',word:'conocer',trans:'знать / быть знакомым'},
+  {lang:'es',word:'vivir',trans:'жить'},
+  {lang:'es',word:'sentir',trans:'чувствовать / ощущать'},
+  {lang:'es',word:'tratar',trans:'пытаться / обращаться / лечить'},
+  {lang:'es',word:'mirar',trans:'смотреть / глядеть'},
+  {lang:'es',word:'contar',trans:'считать / рассказывать'},
+  {lang:'es',word:'empezar',trans:'начинать'},
+  {lang:'es',word:'esperar',trans:'ждать / надеяться'},
+  {lang:'es',word:'buscar',trans:'искать'},
+  {lang:'es',word:'entrar',trans:'входить'},
+  {lang:'es',word:'trabajar',trans:'работать'},
+  {lang:'es',word:'escribir',trans:'писать'},
+  {lang:'es',word:'perder',trans:'терять / проигрывать'},
+  {lang:'es',word:'producir',trans:'производить'},
+  {lang:'es',word:'ocurrir',trans:'происходить / случаться'},
+  {lang:'es',word:'entender',trans:'понимать'},
+  {lang:'es',word:'pedir',trans:'просить / заказывать'},
+  {lang:'es',word:'recibir',trans:'получать'},
+  {lang:'es',word:'recordar',trans:'помнить / напоминать'},
+  {lang:'es',word:'terminar',trans:'заканчивать'},
+  {lang:'es',word:'permitir',trans:'позволять / разрешать'},
+  {lang:'es',word:'aparecer',trans:'появляться'},
+  {lang:'es',word:'conseguir',trans:'достигать / получать'},
+  {lang:'es',word:'comenzar',trans:'начинать'},
+  {lang:'es',word:'servir',trans:'служить / подавать (еду)'},
+  {lang:'es',word:'sacar',trans:'вынимать / доставать / вытаскивать'},
+  {lang:'es',word:'necesitar',trans:'нуждаться / нужно'},
+  {lang:'es',word:'mantener',trans:'поддерживать / содержать'},
+  {lang:'es',word:'resultar',trans:'оказываться / получаться'},
+  {lang:'es',word:'leer',trans:'читать'},
+  {lang:'es',word:'caer',trans:'падать'},
+  {lang:'es',word:'cambiar',trans:'менять / меняться'},
+  {lang:'es',word:'presentar',trans:'представлять / презентовать'},
+  {lang:'es',word:'crear',trans:'создавать'},
+  {lang:'es',word:'abrir',trans:'открывать'},
+  {lang:'es',word:'considerar',trans:'рассматривать / считать'},
+  {lang:'es',word:'oír',trans:'слышать'},
+  {lang:'es',word:'acabar',trans:'заканчивать / закончить'},
+  {lang:'es',word:'convertir',trans:'превращать / преобразовывать'},
+  {lang:'es',word:'ganar',trans:'выигрывать / зарабатывать'},
+  {lang:'es',word:'formar',trans:'формировать / образовывать'},
+  {lang:'es',word:'traer',trans:'приносить / привозить'},
+  {lang:'es',word:'partir',trans:'уезжать / делить / разделять'},
+  {lang:'es',word:'morir',trans:'умирать'},
+  {lang:'es',word:'aceptar',trans:'принимать / соглашаться'},
+  {lang:'es',word:'realizar',trans:'осуществлять / реализовывать'},
+  {lang:'es',word:'suponer',trans:'предполагать / допускать'},
+  {lang:'es',word:'comprender',trans:'понимать'},
+  {lang:'es',word:'lograr',trans:'достигать / добиваться'},
+  {lang:'es',word:'explicar',trans:'объяснять'},
+  {lang:'es',word:'preguntar',trans:'спрашивать'},
+  {lang:'es',word:'tocar',trans:'трогать / играть (на инструменте)'},
+  {lang:'es',word:'reconocer',trans:'признавать / узнавать'},
+  {lang:'es',word:'estudiar',trans:'учиться / изучать'},
+  {lang:'es',word:'alcanzar',trans:'достигать / догонять'},
+  {lang:'es',word:'nacer',trans:'рождаться'},
+  {lang:'es',word:'dirigir',trans:'руководить / направлять'},
+  {lang:'es',word:'correr',trans:'бежать / бегать'},
+  {lang:'es',word:'utilizar',trans:'использовать'},
+  {lang:'es',word:'pagar',trans:'платить'},
+  {lang:'es',word:'ayudar',trans:'помогать'},
+  {lang:'es',word:'gustar',trans:'нравиться'},
+  {lang:'es',word:'jugar',trans:'играть'},
+  {lang:'es',word:'escuchar',trans:'слушать'},
+  {lang:'es',word:'cumplir',trans:'выполнять / исполнять'},
+  {lang:'es',word:'ofrecer',trans:'предлагать'},
+  {lang:'es',word:'descubrir',trans:'открывать / обнаруживать'},
+  {lang:'es',word:'levantar',trans:'поднимать'},
+  {lang:'es',word:'intentar',trans:'пытаться / пробовать'},
+  {lang:'es',word:'usar',trans:'использовать'},
 ];
 
 let words = [];
@@ -413,7 +622,7 @@ function nextCard() {
   document.getElementById('card-lang').textContent = isFwd?(w.lang==='es'?'Испанский':'Английский'):'Русский';
   document.getElementById('card-word').textContent = isFwd?w.word:w.trans;
   const inp = document.getElementById('answer-input');
-  inp.value=''; inp.className='';
+  inp.value=''; inp.className='answer-input-full';
   document.getElementById('feedback').textContent='';
   document.getElementById('feedback').className='feedback';
   document.getElementById('correct-hint').textContent='';
@@ -438,7 +647,7 @@ function checkAnswer() {
   if (ok) {
     current.hits++; w.totalCorrect=(w.totalCorrect||0)+1; sessionCorrect++;
     fb.textContent=['Верно','Отлично','Правильно','Так держать'][Math.floor(Math.random()*4)];
-    fb.className='feedback ok'; inp.className='ok';
+    fb.className='feedback ok'; inp.className='answer-input-full ok';
     document.getElementById('correct-hint').textContent='';
     answerLocked=true; save();
     setTimeout(()=>nextCard(),700);
@@ -447,8 +656,8 @@ function checkAnswer() {
     fb.textContent='Не совсем';
     fb.className='feedback err';
     document.getElementById('correct-hint').textContent='Правильно: '+correct;
-    inp.className='err'; inp.value='';
-    setTimeout(()=>{inp.className='';inp.focus();},600);
+    inp.className='answer-input-full err'; inp.value='';
+    setTimeout(()=>{inp.className='answer-input-full';inp.focus();},600);
   }
   updateStats();
 }
