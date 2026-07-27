@@ -129,6 +129,12 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 .no-words { text-align:center; padding:24px; color:var(--ink3); font-size:14px; font-style:italic; font-family:'Cormorant',serif; }
 .lang-section-header { font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink3); padding:8px 0 6px; display:flex; align-items:center; gap:10px; }
 .lang-section-header::after { content:''; flex:1; height:1px; background:var(--border); }
+/* Video links */
+.video-list { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.video-row { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:7px; border-left:3px solid var(--yellow2); }
+.video-row a { flex:1; color:var(--bordeaux); text-decoration:none; font-size:13px; font-family:'Josefin Sans',sans-serif; font-weight:300; letter-spacing:.02em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.video-row a:hover { text-decoration:underline; }
+.no-videos { text-align:center; padding:18px; color:var(--ink3); font-size:13px; font-style:italic; font-family:'Cormorant',serif; }
 
 .peek-answer-row { display:flex; align-items:center; gap:10px; margin:14px 0 10px; }
 .peek-answer { flex:1; font-family:'Cormorant',serif; font-size:22px; font-style:italic; color:var(--bordeaux); padding:14px 18px; background:var(--cream); border-radius:8px; border-left:3px solid var(--bordeaux); line-height:1.4; text-align:left; }
@@ -236,6 +242,23 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
         <div class="actions-row">
           <button class="action-btn" onclick="exportWords()">Экспорт .txt</button>
           <button class="action-btn danger" onclick="clearAll()">Очистить всё</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="words-header">
+          <h2>Видео</h2>
+          <span class="word-count" id="video-count-badge">0 видео</span>
+        </div>
+        <div class="video-list" id="video-list"></div>
+        <div class="add-form">
+          <div class="form-title"><span>Добавить ссылку на видео</span></div>
+          <div class="row">
+            <select id="new-video-lang"><option value="en">EN</option><option value="es" selected>ES</option></select>
+            <input type="text" id="new-video-title" placeholder="Название (напр. Spanish After Hours)" autocomplete="off"/>
+            <input type="text" id="new-video-url" placeholder="Ссылка на видео/канал" onkeydown="if(event.key==='Enter')addVideo()" autocomplete="off"/>
+            <button class="add-btn" onclick="addVideo()">+ Добавить</button>
+          </div>
         </div>
       </div>
     </main>
@@ -569,8 +592,15 @@ const PRESET_WORDS = [
   {lang:'es',word:'usar',trans:'использовать'},
 ];
 
+const PRESET_VIDEOS = [
+  {lang:'es', title:'Spanish After Hours (канал)', url:'https://www.youtube.com/@spanishafterhours'},
+  {lang:'es', title:'Испанский Класс (канал)', url:'https://www.youtube.com/@ispanskiy_klass'}
+];
+
 let words = [];
+let videos = [];
 let idCounter = 1;
+let videoIdCounter = 1;
 let queue = [], roundQueue = [], current = null;
 let currentLang = 'en';
 let mode = 'both';
@@ -579,14 +609,24 @@ let filter = 'all';
 let answerLocked = false;
 let autoSpeak = false;
 
-function save() { localStorage.setItem(STORE_KEY, JSON.stringify({words, idCounter})); }
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify({words, idCounter, videos, videoIdCounter})); }
 function load() {
   try {
     const d = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
-    if (d && d.words && d.words.length) { words=d.words; idCounter=d.idCounter||1; return; }
+    if (d && d.words && d.words.length) {
+      words=d.words; idCounter=d.idCounter||1;
+      videos = d.videos || [];
+      videoIdCounter = d.videoIdCounter || 1;
+      if (!videos.length && !d.videos) {
+        PRESET_VIDEOS.forEach(v => videos.push({id:videoIdCounter++, ...v}));
+        save();
+      }
+      return;
+    }
   } catch(e){}
   // First launch — load presets
   PRESET_WORDS.forEach(w => words.push({id:idCounter++, ...w, totalCorrect:0}));
+  PRESET_VIDEOS.forEach(v => videos.push({id:videoIdCounter++, ...v}));
   save();
 }
 
@@ -595,7 +635,7 @@ function switchMainTab(t) {
   document.getElementById('tab-words').style.display = t==='words'?'':'none';
   document.getElementById('main-tab-train').classList.toggle('active', t==='train');
   document.getElementById('main-tab-words').classList.toggle('active', t==='words');
-  if (t==='train') initSession(); else renderWordList();
+  if (t==='train') initSession(); else { renderWordList(); renderVideoList(); }
 }
 
 function setLang(lang) {
@@ -899,6 +939,43 @@ function addConjugation() {
 function updateWord(id,field,val){const w=words.find(x=>x.id===id);if(w){w[field]=val.trim();save();}}
 function deleteWord(id){if(!confirm('Удалить это слово?'))return;words=words.filter(x=>x.id!==id);save();renderWordList();}
 function clearAll(){if(!confirm('Удалить все слова? Это нельзя отменить.'))return;words=[];save();renderWordList();}
+
+function normalizeUrl(u) {
+  u = u.trim();
+  if (!u) return '';
+  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  return u;
+}
+
+function renderVideoList() {
+  const list = document.getElementById('video-list');
+  document.getElementById('video-count-badge').textContent = videos.length+' '+plural(videos.length,'видео','видео','видео');
+  if (!videos.length) { list.innerHTML='<div class="no-videos">Пока нет ссылок — добавь ниже</div>'; return; }
+  list.innerHTML = videos.map(v => `
+    <div class="video-row ${v.lang}">
+      <span class="lang-pill ${v.lang}">${v.lang.toUpperCase()}</span>
+      <a href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">${esc(v.title||v.url)}</a>
+      <button class="del-btn" onclick="deleteVideo(${v.id})">×</button>
+    </div>`).join('');
+}
+
+function addVideo() {
+  const lang = document.getElementById('new-video-lang').value;
+  const title = document.getElementById('new-video-title').value.trim();
+  const url = normalizeUrl(document.getElementById('new-video-url').value);
+  if (!url) { document.getElementById('new-video-url').focus(); return; }
+  videos.push({id:videoIdCounter++, lang, title, url});
+  document.getElementById('new-video-title').value='';
+  document.getElementById('new-video-url').value='';
+  document.getElementById('new-video-title').focus();
+  save(); renderVideoList();
+}
+
+function deleteVideo(id) {
+  if (!confirm('Удалить эту ссылку?')) return;
+  videos = videos.filter(x=>x.id!==id);
+  save(); renderVideoList();
+}
 function exportWords(){
   const lines=words.map(w=>`[${w.lang.toUpperCase()}] ${w.word} → ${w.trans}`);
   const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
@@ -908,6 +985,7 @@ function exportWords(){
 
 load();
 renderWordList();
+renderVideoList();
 renderConjRows();
 setLang('en');
 initSession();
