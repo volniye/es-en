@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teoría DGT</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@100;200;300&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#F1EDE3; --surface:#FAF7F0; --surface2:#EDE8DC; --surface3:#D9D2C0;
+  --ink:#1E1A17; --ink2:#6B6055; --ink3:#A89F93;
+  --bordeaux:#5D2415; --bordeaux2:#7A3020; --cream:#F1E1C4;
+  --olive:#6E6E2E; --olive-bg:#E4EBD8; --border:#D5CCBC;
+}
+body { font-family:'Josefin Sans',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; font-weight:200; letter-spacing:.04em; }
+.app { display:flex; flex-direction:column; min-height:100vh; }
+header { background:var(--bordeaux); color:var(--cream); padding:18px 28px; display:flex; align-items:baseline; gap:16px; }
+header h1 { font-family:'Josefin Sans',sans-serif; font-weight:100; font-size:24px; letter-spacing:.22em; text-transform:uppercase; }
+header span { font-size:11px; letter-spacing:.18em; opacity:.5; text-transform:uppercase; }
+header a.back { margin-left:auto; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--cream); opacity:.8; text-decoration:underline; text-underline-offset:3px; }
+main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:24px; margin-bottom:14px; }
+.progress-wrap { height:6px; background:var(--surface2); border-radius:99px; overflow:hidden; margin-bottom:10px; }
+.progress-fill { height:6px; background:var(--olive); border-radius:99px; transition:width .3s ease; }
+.progress-label { font-size:13px; color:var(--ink2); text-align:center; font-family:'Cormorant',serif; font-size:20px; font-style:italic; }
+.progress-sub { font-size:11px; color:var(--ink3); text-align:center; letter-spacing:.08em; text-transform:uppercase; margin-top:2px; }
+.res-row { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:7px; border-left:3px solid var(--bordeaux); margin-bottom:6px; }
+.res-row a { flex:1; color:var(--bordeaux); text-decoration:none; font-size:13px; }
+.res-row a:hover { text-decoration:underline; }
+.res-row .note { font-size:11px; color:var(--ink3); flex-shrink:0; }
+.week-title { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink2); padding:14px 0 8px; display:flex; align-items:center; gap:10px; }
+.week-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.week-title:first-child { padding-top:0; }
+.day-row { display:flex; align-items:flex-start; gap:12px; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:7px; margin-bottom:5px; cursor:pointer; transition:background .15s; }
+.day-row:hover { background:var(--surface2); }
+.day-row.done { background:var(--olive-bg); border-color:#C9D6B4; }
+.day-row input { margin-top:3px; flex-shrink:0; width:16px; height:16px; cursor:pointer; accent-color:var(--olive); }
+.day-row .lbl { flex:1; }
+.day-row .d-num { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); display:block; margin-bottom:2px; }
+.day-row .d-txt { font-size:13px; color:var(--ink); line-height:1.4; }
+.day-row.done .d-txt { color:var(--ink2); text-decoration:line-through; text-decoration-color:var(--ink3); }
+.criteria { font-size:13px; color:var(--ink2); line-height:1.6; }
+.criteria b { color:var(--bordeaux); }
+.reset-btn { background:none; border:none; font-size:11px; color:var(--ink3); cursor:pointer; text-decoration:underline; text-underline-offset:3px; letter-spacing:.08em; text-transform:uppercase; display:block; margin:16px auto 0; }
+.reset-btn:hover { color:var(--bordeaux); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Teoría DGT</h1>
+    <span>Теория на права · план</span>
+    <a class="back" href="index.html">← Word Trainer</a>
+  </header>
+  <main>
+    <div class="card">
+      <div class="progress-wrap"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="progress-label" id="prog-label">0 / 28 дней</div>
+      <div class="progress-sub" id="prog-sub">Начни с Дня 1</div>
+    </div>
+
+    <div class="card">
+      <div class="week-title">Ресурсы (бесплатно)</div>
+      <div class="res-row"><a href="https://t.me/SpanishTrafficRulesBot" target="_blank" rel="noopener noreferrer">SpanishTrafficRulesBot — Telegram, EN вопросы + RU разбор + AI-ментор</a></div>
+      <div class="res-row"><a href="https://pravila.es" target="_blank" rel="noopener noreferrer">pravila.es — билеты DGT с переводом и разбором на русский</a></div>
+      <div class="res-row"><a href="https://practicatest.com/en" target="_blank" rel="noopener noreferrer">practicatest.com — мок-экзамены на английском, формат как настоящий</a></div>
+    </div>
+
+    <div class="card">
+      <div id="day-list"></div>
+      <button class="reset-btn" onclick="resetProgress()">Сбросить прогресс</button>
+    </div>
+
+    <div class="card">
+      <div class="week-title">Критерий готовности</div>
+      <div class="criteria">Записывайся на настоящий экзамен, когда получишь <b>27 из 30 (или лучше) минимум в 3 мок-экзаменах подряд</b> на practicatest.com на английском. Раньше — рано, даже если кажется, что готова.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+const STORE_KEY = 'teoria_dgt_progress_v1';
+
+const PLAN = [
+  {week:'Неделя 1 — понимание (без таймера, на русском)', days:[
+    'Настройка ботов/сайтов. Приоритет на перекрёстках без знаков: правило правой руки, круговое движение.',
+    'Приоритет со знаками и светофором: кто уступает и в каком порядке.',
+    'Знаки: предупреждающие, запрещающие, предписывающие — логика форм и цветов.',
+    'Дорожная разметка и сигналы регулировщика.',
+    'Скорость, дистанция, обгон — откуда берутся цифры лимитов.',
+    'Алкоголь, наркотики, документы на машину и водителя, штрафы.',
+    'Повтор вперемешку: 20 вопросов по всем темам недели, отметь слабые места.'
+  ]},
+  {week:'Неделя 2 — смешанная тренировка', days:[
+    'Приоритет и перекрёстки.',
+    'Знаки и разметка.',
+    'Скорость / дистанция / обгон.',
+    'Пешеходы, велосипедисты, автомагистрали.',
+    'Документы, алкоголь, штрафы, парковка/остановка.',
+    'Вперемешку — мини-мок 15–20 вопросов.',
+    'Отдых или повтор ошибок из истории ответов.'
+  ]},
+  {week:'Неделя 3 — смешанная тренировка (закрепление)', days:[
+    'Приоритет и перекрёстки — только те, где раньше ошибалась.',
+    'Знаки и разметка — повтор слабых тем.',
+    'Скорость / дистанция / обгон — повтор слабых тем.',
+    'Пешеходы, велосипедисты, автомагистрали — повтор слабых тем.',
+    'Документы, алкоголь, штрафы, парковка — повтор слабых тем.',
+    'Вперемешку — мини-мок 15–20 вопросов.',
+    'Отдых или повтор ошибок из истории ответов.'
+  ]},
+  {week:'Неделя 4 — переход на английский, мок-экзамены', days:[
+    'Полный переход на английский. Мок-экзамен на practicatest.com (30 вопросов/30 минут).',
+    'Мок-экзамен + разбор ошибок сразу после.',
+    'Мок-экзамен + разбор ошибок.',
+    'Мок-экзамен + разбор ошибок.',
+    'Мок-экзамен + разбор ошибок.',
+    'Проверка: 3 мока подряд 27+/30? Если да — можно записываться на экзамен.',
+    'Если ещё не стабильно — повтори слабые темы и переиграй моки, не записывайся раньше времени.'
+  ]}
+];
+
+let done = {};
+
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+    if (d) done = d;
+  } catch(e){}
+}
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify(done)); }
+
+function render() {
+  const list = document.getElementById('day-list');
+  let html = '';
+  let dayCounter = 0;
+  let totalDone = 0;
+  const totalDays = PLAN.reduce((s,w)=>s+w.days.length,0);
+  PLAN.forEach(w => {
+    html += `<div class="week-title">${w.week}</div>`;
+    w.days.forEach(txt => {
+      dayCounter++;
+      const key = 'd'+dayCounter;
+      const isDone = !!done[key];
+      if (isDone) totalDone++;
+      html += `<div class="day-row ${isDone?'done':''}" onclick="toggleDay('${key}')">
+        <input type="checkbox" ${isDone?'checked':''} onclick="event.stopPropagation();toggleDay('${key}')"/>
+        <div class="lbl"><span class="d-num">День ${dayCounter}</span><span class="d-txt">${txt}</span></div>
+      </div>`;
+    });
+  });
+  list.innerHTML = html;
+  const pct = Math.round(totalDone/totalDays*100);
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-label').textContent = totalDone+' / '+totalDays+' дней';
+  const sub = document.getElementById('prog-sub');
+  if (totalDone===0) sub.textContent = 'Начни с Дня 1';
+  else if (totalDone>=totalDays) sub.textContent = 'Всё пройдено — смотри критерий готовности ниже';
+  else sub.textContent = 'Следующий: День '+(totalDone+1);
+}
+
+function toggleDay(key) {
+  done[key] = !done[key];
+  save(); render();
+}
+
+function resetProgress() {
+  if (!confirm('Сбросить весь прогресс по плану?')) return;
+  done = {}; save(); render();
+}
+
+load();
+render();
+</script>
+</body>
+</html>
