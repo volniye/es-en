@@ -34,10 +34,12 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:24px; margin-bottom:14px; }
 .card.en-accent { border-top:3px solid var(--blue); }
 .card.es-accent { border-top:3px solid var(--yellow); }
-.mode-row { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+.mode-row { display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
 .mode-btn { padding:5px 14px; border:1px solid var(--border); border-radius:99px; background:transparent; font-family:'Josefin Sans',sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink2); cursor:pointer; transition:all .15s; }
 .mode-btn.active.en { background:var(--blue); border-color:var(--blue); color:#fff; }
 .mode-btn.active.es { background:var(--yellow2); border-color:var(--yellow2); color:var(--ink); }
+.auto-speak-toggle { display:flex; align-items:center; gap:6px; margin-left:auto; font-size:11px; color:var(--ink2); letter-spacing:.06em; cursor:pointer; user-select:none; }
+.auto-speak-toggle input { cursor:pointer; }
 .train-card { text-align:center; padding:32px 24px 24px; }
 .progress-wrap { height:2px; background:var(--surface2); border-radius:99px; margin-bottom:8px; overflow:hidden; }
 .progress-fill { height:2px; border-radius:99px; transition:width .4s ease; }
@@ -45,7 +47,11 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 .progress-fill.es { background:var(--yellow2); }
 .progress-label { font-size:11px; color:var(--ink3); text-align:right; margin-bottom:32px; letter-spacing:.08em; }
 .card-lang { font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink3); margin-bottom:8px; }
-.card-word { font-family:'Cormorant',serif; font-size:38px; font-weight:300; color:var(--ink); margin-bottom:28px; min-height:50px; line-height:1.2; font-style:italic; }
+.card-word-row { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:28px; }
+.card-word { font-family:'Cormorant',serif; font-size:38px; font-weight:300; color:var(--ink); min-height:50px; line-height:1.2; font-style:italic; }
+.speak-btn { background:none; border:1px solid var(--border); border-radius:50%; width:36px; height:36px; flex-shrink:0; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--ink2); transition:background .15s; }
+.speak-btn:hover { background:var(--surface2); }
+.speak-btn[disabled] { opacity:0; pointer-events:none; }
 .answer-input-full { width:100%; padding:13px 16px; font-size:16px; font-family:'Josefin Sans',sans-serif; font-weight:200; letter-spacing:.04em; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--ink); outline:none; transition:border-color .2s; margin-bottom:14px; text-align:center; }
 .answer-input-full:focus { border-color:var(--bordeaux); }
 .answer-input-full.ok { border-color:var(--olive); background:#F0F2E4; }
@@ -90,6 +96,7 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 .lang-pill { font-size:10px; font-weight:300; letter-spacing:.1em; text-transform:uppercase; padding:2px 7px; border-radius:99px; flex-shrink:0; }
 .lang-pill.en { background:var(--blue-bg); color:var(--blue2); }
 .lang-pill.es { background:var(--yellow-bg); color:var(--yellow2); }
+.person-tag { font-size:9px; color:var(--ink3); background:var(--surface2); padding:2px 6px; border-radius:99px; flex-shrink:0; white-space:nowrap; }
 .word-row input { flex:1; background:none; border:none; font-size:13px; font-family:'Josefin Sans',sans-serif; font-weight:200; letter-spacing:.04em; color:var(--ink); outline:none; min-width:50px; }
 .word-row .sep { color:var(--ink3); font-size:13px; flex-shrink:0; }
 .hits-badge { font-size:10px; color:var(--ink3); background:var(--surface2); padding:2px 7px; border-radius:99px; flex-shrink:0; white-space:nowrap; }
@@ -97,7 +104,7 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 .del-btn { background:none; border:none; color:var(--ink3); cursor:pointer; font-size:16px; padding:0 2px; line-height:1; flex-shrink:0; }
 .del-btn:hover { color:var(--bordeaux); }
 .add-form { background:var(--cream); border:1px solid #DDD4B8; border-radius:10px; padding:18px; }
-.add-form .form-title { font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink3); margin-bottom:12px; }
+.add-form .form-title { font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink3); margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
 .add-form .row { display:flex; gap:8px; flex-wrap:wrap; }
 .add-form select,.add-form input { padding:9px 12px; border:1px solid #DDD4B8; border-radius:6px; background:var(--surface); font-family:'Josefin Sans',sans-serif; font-size:13px; font-weight:200; letter-spacing:.04em; color:var(--ink); outline:none; }
 .add-form select { min-width:68px; cursor:pointer; }
@@ -105,6 +112,10 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 .add-form input:focus { border-color:var(--bordeaux); }
 .add-btn { padding:9px 18px; background:var(--bordeaux); color:var(--cream); border:none; border-radius:6px; font-family:'Josefin Sans',sans-serif; font-size:11px; font-weight:300; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
 .add-btn:hover { background:var(--bordeaux2); }
+.mode-toggle-link { background:none; border:none; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--bordeaux); text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
+.conj-rows { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+.conj-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.conj-row .person-lbl { font-size:11px; color:var(--ink2); min-width:110px; flex-shrink:0; }
 .actions-row { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
 .action-btn { padding:7px 14px; border:1px solid var(--border); border-radius:6px; background:var(--surface); font-family:'Josefin Sans',sans-serif; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink2); cursor:pointer; transition:background .15s; }
 .action-btn:hover { background:var(--surface2); }
@@ -119,7 +130,8 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 .lang-section-header { font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink3); padding:8px 0 6px; display:flex; align-items:center; gap:10px; }
 .lang-section-header::after { content:''; flex:1; height:1px; background:var(--border); }
 
-.peek-answer { font-family:'Cormorant',serif; font-size:22px; font-style:italic; color:var(--bordeaux); margin:14px 0 10px; padding:14px 18px; background:var(--cream); border-radius:8px; border-left:3px solid var(--bordeaux); line-height:1.4; }
+.peek-answer-row { display:flex; align-items:center; gap:10px; margin:14px 0 10px; }
+.peek-answer { flex:1; font-family:'Cormorant',serif; font-size:22px; font-style:italic; color:var(--bordeaux); padding:14px 18px; background:var(--cream); border-radius:8px; border-left:3px solid var(--bordeaux); line-height:1.4; text-align:left; }
 .peek-next-btn { display:block; width:100%; padding:14px 24px; border:none; border-radius:8px; font-family:'Josefin Sans',sans-serif; font-size:13px; font-weight:300; letter-spacing:.16em; text-transform:uppercase; cursor:pointer; background:var(--olive); color:#fff; transition:background .15s; margin-bottom:4px; }
 .peek-next-btn:hover { background:#5A5A22; }
 </style>
@@ -151,13 +163,19 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
           <div class="progress-wrap"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
           <div class="progress-label" id="prog-label">0 / 0</div>
           <div class="card-lang" id="card-lang"></div>
-          <div class="card-word" id="card-word"></div>
+          <div class="card-word-row">
+            <div class="card-word" id="card-word"></div>
+            <button class="speak-btn" id="speak-btn" onclick="speakCurrent()" title="Озвучить">🔊</button>
+          </div>
           <input class="answer-input-full" type="text" id="answer-input" placeholder="Введи перевод..." autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="handleKey(event)"/>
           <div class="feedback" id="feedback"></div>
           <div class="correct-hint" id="correct-hint"></div>
           <button class="skip-btn" onclick="skipCard()">не знаю — пропустить</button>
           <div id="peek-block" style="display:none">
-            <div class="peek-answer" id="peek-answer"></div>
+            <div class="peek-answer-row">
+              <div class="peek-answer" id="peek-answer"></div>
+              <button class="speak-btn" id="peek-speak-btn" onclick="speakPeek()" title="Озвучить">🔊</button>
+            </div>
             <button class="peek-next-btn" id="peek-next-btn" onclick="nextCard()">Запомнил — дальше →</button>
           </div>
           <button class="submit-btn" id="submit-btn" onclick="checkAnswer()">Проверить</button>
@@ -197,14 +215,23 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
           <button class="filter-btn" onclick="setFilter('learned')" id="filter-learned">Выученные</button>
         </div>
         <div class="word-list" id="word-list"></div>
-        <div class="add-form">
-          <div class="form-title">Добавить слово</div>
+        <div class="add-form" id="add-form-word">
+          <div class="form-title"><span>Добавить слово</span><button class="mode-toggle-link" onclick="toggleAddMode('conj')">+ спряжение глагола</button></div>
           <div class="row">
             <select id="new-lang"><option value="en">EN</option><option value="es">ES</option></select>
             <input type="text" id="new-word" placeholder="Слово или фраза" onkeydown="if(event.key==='Tab'){event.preventDefault();document.getElementById('new-trans').focus()}" autocomplete="off"/>
             <input type="text" id="new-trans" placeholder="Перевод на русский" onkeydown="if(event.key==='Enter')addWord()" autocomplete="off"/>
             <button class="add-btn" onclick="addWord()">+ Добавить</button>
           </div>
+        </div>
+        <div class="add-form" id="add-form-conj" style="display:none;margin-top:10px">
+          <div class="form-title"><span>Спряжение глагола (испанский)</span><button class="mode-toggle-link" onclick="toggleAddMode('word')">+ обычное слово</button></div>
+          <div class="row">
+            <input type="text" id="conj-infinitive" placeholder="Инфинитив (hablar)" autocomplete="off"/>
+            <input type="text" id="conj-tense" placeholder="Время (Presente)" autocomplete="off"/>
+          </div>
+          <div class="conj-rows" id="conj-rows"></div>
+          <button class="add-btn" style="margin-top:10px" onclick="addConjugation()">+ Добавить все формы</button>
         </div>
         <div class="actions-row">
           <button class="action-btn" onclick="exportWords()">Экспорт .txt</button>
@@ -218,6 +245,14 @@ main { flex:1; padding:24px 28px; max-width:700px; margin:0 auto; width:100%; }
 <script>
 const STORE_KEY = 'vocab_trainer_v7';
 const NEEDED = 10;
+const CONJ_PERSONS = [
+  {key:'yo', label:'yo'},
+  {key:'tu', label:'tú'},
+  {key:'el', label:'él / ella / Ud.'},
+  {key:'nosotros', label:'nosotros/as'},
+  {key:'vosotros', label:'vosotros/as'},
+  {key:'ellos', label:'ellos / ellas / Uds.'}
+];
 
 // ── Preset words from Notion ──
 const PRESET_WORDS = [
@@ -536,12 +571,13 @@ const PRESET_WORDS = [
 
 let words = [];
 let idCounter = 1;
-let queue = [], current = null;
+let queue = [], roundQueue = [], current = null;
 let currentLang = 'en';
 let mode = 'both';
 let sessionCorrect = 0, sessionWrong = 0;
 let filter = 'all';
 let answerLocked = false;
+let autoSpeak = false;
 
 function save() { localStorage.setItem(STORE_KEY, JSON.stringify({words, idCounter})); }
 function load() {
@@ -578,7 +614,10 @@ function renderModeBtns() {
   document.getElementById('mode-row').innerHTML = `
     <button class="mode-btn active ${currentLang}" id="mode-both" onclick="setMode('both')">${label} ↔ RU</button>
     <button class="mode-btn ${currentLang}" id="mode-fwd" onclick="setMode('fwd')">${label} → RU</button>
-    <button class="mode-btn ${currentLang}" id="mode-rev" onclick="setMode('rev')">RU → ${label}</button>`;
+    <button class="mode-btn ${currentLang}" id="mode-rev" onclick="setMode('rev')">RU → ${label}</button>
+    <label class="auto-speak-toggle"><input type="checkbox" id="auto-speak-check" onchange="autoSpeak=this.checked"> авто 🔊</label>`;
+  const chk = document.getElementById('auto-speak-check');
+  if (chk) chk.checked = autoSpeak;
 }
 
 function setMode(m) {
@@ -595,7 +634,18 @@ function buildQueue() {
     if (mode==='fwd'||mode==='both') pool.push({wid:w.id,dir:'fwd',hits:0});
     if (mode==='rev'||mode==='both') pool.push({wid:w.id,dir:'rev',hits:0});
   });
-  return shuffle(pool);
+  return pool;
+}
+
+// Builds one "round" — every still-pending card exactly once, shuffled,
+// so a word can't repeat until all other pending words have had a turn.
+function refillRound() {
+  const pending = queue.filter(c => c.hits < NEEDED);
+  let round = shuffle(pending);
+  if (round.length > 1 && current && round[0].wid===current.wid && round[0].dir===current.dir) {
+    [round[0], round[1]] = [round[1], round[0]];
+  }
+  roundQueue = round;
 }
 
 function initSession() {
@@ -614,7 +664,7 @@ function initSession() {
   document.getElementById('train-card').className='card train-card '+currentLang+'-accent';
   document.getElementById('submit-btn').className='submit-btn '+currentLang;
   document.getElementById('prog-fill').className='progress-fill '+currentLang;
-  queue=buildQueue(); sessionCorrect=0; sessionWrong=0;
+  queue=buildQueue(); roundQueue=[]; current=null; sessionCorrect=0; sessionWrong=0;
   updateStats(); nextCard();
 }
 
@@ -623,15 +673,18 @@ function nextCard() {
   // Hide peek block, restore submit button
   document.getElementById('peek-block').style.display='none';
   document.getElementById('submit-btn').style.display='';
-  const pending = queue.filter(c=>c.hits<NEEDED);
-  if (!pending.length) { showFinish(); return; }
-  const pool = pending.slice(0,Math.min(5,pending.length));
-  current = pool[Math.floor(Math.random()*pool.length)];
+  const pendingTotal = queue.filter(c=>c.hits<NEEDED).length;
+  if (!pendingTotal) { showFinish(); return; }
+  if (!roundQueue.length) refillRound();
+  current = roundQueue.shift();
   const w = words.find(x=>x.id===current.wid);
   if (!w) { nextCard(); return; }
   const isFwd = current.dir==='fwd';
-  document.getElementById('card-lang').textContent = isFwd?(w.lang==='es'?'Испанский':'Английский'):'Русский';
+  const personSuffix = w.person ? (' · '+w.person) : '';
+  document.getElementById('card-lang').textContent = (isFwd?(w.lang==='es'?'Испанский':'Английский'):'Русский')+personSuffix;
   document.getElementById('card-word').textContent = isFwd?w.word:w.trans;
+  const speakBtn = document.getElementById('speak-btn');
+  speakBtn.disabled = !isFwd;
   const inp = document.getElementById('answer-input');
   inp.value=''; inp.className='answer-input-full';
   document.getElementById('feedback').textContent='';
@@ -639,6 +692,7 @@ function nextCard() {
   document.getElementById('correct-hint').textContent='';
   setTimeout(()=>inp.focus(),50);
   updateStats();
+  if (isFwd && autoSpeak) speak(w.word, w.lang);
 }
 
 function normalize(s) { return s.trim().toLowerCase().replace(/[.,!?;:'"«»()\/]/g,'').replace(/\s+/g,' '); }
@@ -670,6 +724,7 @@ function checkAnswer() {
     inp.className='answer-input-full err'; inp.value='';
     // Show peek block with correct answer
     document.getElementById('peek-answer').textContent=correct;
+    document.getElementById('peek-speak-btn').disabled = current.dir!=='rev';
     document.getElementById('peek-block').style.display='';
     document.getElementById('submit-btn').style.display='none';
     setTimeout(()=>{inp.className='answer-input-full';inp.focus();},300);
@@ -686,6 +741,7 @@ function skipCard() {
   document.getElementById('feedback').className='feedback err';
   document.getElementById('correct-hint').textContent='';
   document.getElementById('peek-answer').textContent=correct;
+  document.getElementById('peek-speak-btn').disabled = !current||current.dir!=='rev';
   document.getElementById('peek-block').style.display='';
   document.getElementById('submit-btn').style.display='none';
   answerLocked=true;
@@ -693,6 +749,29 @@ function skipCard() {
 }
 
 function handleKey(e) { if(e.key==='Enter') checkAnswer(); }
+
+function speak(text, lang) {
+  if (!('speechSynthesis' in window) || !text) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang==='es' ? 'es-ES' : 'en-US';
+  u.rate = 0.92;
+  window.speechSynthesis.speak(u);
+}
+
+function speakCurrent() {
+  if (!current) return;
+  const w = words.find(x=>x.id===current.wid);
+  if (!w || current.dir!=='fwd') return;
+  speak(w.word, w.lang);
+}
+
+function speakPeek() {
+  if (!current) return;
+  const w = words.find(x=>x.id===current.wid);
+  if (!w || current.dir!=='rev') return;
+  speak(w.word, w.lang);
+}
 
 function updateStats() {
   const pending = queue.filter(c=>c.hits<NEEDED).length;
@@ -752,8 +831,10 @@ function renderWordList() {
 
 function rowHtml(w) {
   const learned=(w.totalCorrect||0)>=NEEDED;
+  const personTag = w.person ? `<span class="person-tag">${esc(w.person)}${w.group?(' · '+esc(w.group)):''}</span>` : '';
   return `<div class="word-row ${w.lang}">
     <span class="lang-pill ${w.lang}">${w.lang.toUpperCase()}</span>
+    ${personTag}
     <input type="text" value="${esc(w.word)}" onchange="updateWord(${w.id},'word',this.value)"/>
     <span class="sep">↔</span>
     <input type="text" value="${esc(w.trans)}" onchange="updateWord(${w.id},'trans',this.value)"/>
@@ -775,6 +856,46 @@ function addWord() {
   document.getElementById('new-word').focus();
   save(); renderWordList();
 }
+
+function toggleAddMode(m) {
+  document.getElementById('add-form-word').style.display = m==='word'?'':'none';
+  document.getElementById('add-form-conj').style.display = m==='conj'?'':'none';
+  if (m==='conj') renderConjRows();
+}
+
+function renderConjRows() {
+  const rows=document.getElementById('conj-rows');
+  rows.innerHTML = CONJ_PERSONS.map(p => `
+    <div class="conj-row" data-person="${p.key}">
+      <span class="person-lbl">${p.label}</span>
+      <input type="text" class="conj-es" placeholder="форма (напр. hablo)" autocomplete="off"/>
+      <input type="text" class="conj-ru" placeholder="перевод (напр. говорю)" autocomplete="off"/>
+    </div>`).join('');
+}
+
+function addConjugation() {
+  const infinitive = document.getElementById('conj-infinitive').value.trim();
+  const tense = document.getElementById('conj-tense').value.trim();
+  if (!infinitive) { document.getElementById('conj-infinitive').focus(); return; }
+  const rowEls = document.querySelectorAll('#conj-rows .conj-row');
+  let added = 0;
+  rowEls.forEach(row => {
+    const personKey = row.getAttribute('data-person');
+    const personObj = CONJ_PERSONS.find(p=>p.key===personKey);
+    const esVal = row.querySelector('.conj-es').value.trim();
+    const ruVal = row.querySelector('.conj-ru').value.trim();
+    if (!esVal || !ruVal) return;
+    const trans = tense ? `${ruVal} — ${infinitive} (${tense})` : `${ruVal} — ${infinitive}`;
+    words.push({id:idCounter++, lang:'es', word:esVal, trans, totalCorrect:0, person:personObj.label, group:infinitive});
+    added++;
+  });
+  if (!added) return;
+  document.getElementById('conj-infinitive').value='';
+  document.getElementById('conj-tense').value='';
+  renderConjRows();
+  save(); renderWordList();
+}
+
 function updateWord(id,field,val){const w=words.find(x=>x.id===id);if(w){w[field]=val.trim();save();}}
 function deleteWord(id){if(!confirm('Удалить это слово?'))return;words=words.filter(x=>x.id!==id);save();renderWordList();}
 function clearAll(){if(!confirm('Удалить все слова? Это нельзя отменить.'))return;words=[];save();renderWordList();}
@@ -787,6 +908,7 @@ function exportWords(){
 
 load();
 renderWordList();
+renderConjRows();
 setLang('en');
 initSession();
 </script>
